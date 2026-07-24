@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: trail-incident-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/trail}
+    username: ${DB_USER:trail}
+    password: ${DB_PASSWORD:trail}
+
+  # Flyway owns the schema. Hibernate only validates against it and
+  # refuses to start on drift — it never modifies the database.
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+server:
+  port: ${SERVER_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus

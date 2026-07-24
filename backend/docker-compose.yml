@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trail-postgres
+    environment:
+      POSTGRES_DB: trail
+      POSTGRES_USER: trail
+      POSTGRES_PASSWORD: trail
+    ports:
+      - "5432:5432"
+    volumes:
+      - trail-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trail -d trail"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  trail-pg-data:
