@@ -83,6 +83,13 @@ public class StateTransition {
         );
     }
 
+    public static StateTransition of(Incident incident, IncidentState fromState,
+                                     IncidentEvent eventType, String actor, String reason) {
+        return new StateTransition(
+                incident.getTenantId(), incident.getId(),
+                fromState, incident.getState(), eventType, actor, reason);
+    }
+
     @PrePersist
     void onCreate() {
         this.timestamp = Instant.now();
