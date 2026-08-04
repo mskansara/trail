@@ -13,4 +13,6 @@
     <artifactId>trail-events</artifactId>
     <name>trail-events</name>
     <description>Shared event contract published on the incident-events topic</description>
+  
+    
 </project>

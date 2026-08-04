@@ -13,6 +13,8 @@ import io.trail.incident.domain.IncidentState;
 import io.trail.incident.domain.StateTransition;
 import io.trail.incident.repository.IncidentRepository;
 import io.trail.incident.repository.StateTransitionRepository;
+import org.springframework.context.ApplicationEventPublisher;
+
 
 
 @Service
@@ -20,10 +22,14 @@ public class IncidentService {
 
     private final IncidentRepository incidents;
     private final StateTransitionRepository transitions;
+    private final ApplicationEventPublisher events;
 
-    public IncidentService(IncidentRepository incidents, StateTransitionRepository transitions) {
+    public IncidentService(IncidentRepository incidents,
+                           StateTransitionRepository transitions,
+                           ApplicationEventPublisher events) {
         this.incidents = incidents;
         this.transitions = transitions;
+        this.events = events;
     }
 
     @Transactional
@@ -31,6 +37,8 @@ public class IncidentService {
         Incident incident = Incident.open(tenantId, title, description, source);
         incidents.save(incident);
         transitions.save(StateTransition.creation(incident, actor));
+        events.publishEvent(io.trail.events.IncidentEvent.created(
+                incident.getId(), tenantId, title, source));
         return incident;
     }
 
@@ -46,6 +54,8 @@ public class IncidentService {
         incident.moveTo(to);
         incidents.save(incident);
         transitions.save(StateTransition.of(incident, from, event, actor, reason));
+        events.publishEvent(io.trail.events.IncidentEvent.stateChanged(
+                incident.getId(), tenantId, from.name(), to.name()));
         return incident;
     }
 
