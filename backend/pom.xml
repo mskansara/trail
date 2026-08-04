@@ -20,7 +20,7 @@
     <modules>
         <module>trail-events</module>
         <module>trail-incident-service</module>
-
+        <module>trail-notification-service</module>
     </modules>
      
 
