@@ -34,5 +34,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
+  dynamodb:
+    image: amazon/dynamodb-local:2.5.2
+    container_name: trail-dynamodb
+    ports:
+      - "8000:8000"
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
 volumes:
   trail-pg-data:
