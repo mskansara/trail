@@ -8,15 +8,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class IncidentEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(IncidentEventListener.class);
-    private final NotificationChannel channel;
+    private final List<NotificationChannel> channels;   // all channels, injected as a list
     private final ProcessedEventStore processed;
 
-    public IncidentEventListener(NotificationChannel channel, ProcessedEventStore processed) {
-        this.channel = channel;
+    public IncidentEventListener(List<NotificationChannel> channels, ProcessedEventStore processed) {
+        this.channels = channels;
         this.processed = processed;
     }
 
@@ -27,6 +29,6 @@ public class IncidentEventListener {
             return;
         }
         log.info("consumed event {} ({})", event.eventId(), event.type());
-        channel.deliver(event);
+        channels.forEach(channel -> channel.deliver(event));
     }
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trail — live incidents</title>
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#161616; color:#f4f4f4; margin:0; padding:24px; }
+    h1 { font-size:18px; font-weight:600; }
+    #status { font-size:13px; color:#8d8d8d; margin-bottom:16px; }
+    #status.on { color:#42be65; }
+    li { list-style:none; padding:10px 12px; border-left:3px solid #4589ff; background:#262626; margin-bottom:6px; font-size:14px; }
+    li.state { border-left-color:#a56eff; }
+    .mono { font-family:ui-monospace, monospace; color:#8d8d8d; font-size:12px; }
+  </style>
+</head>
+<body>
+  <h1>Trail — live incidents (tenant-a)</h1>
+  <div id="status">connecting…</div>
+  <ul id="events"></ul>
+
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+  <script>
+    const client = new StompJs.Client({
+      webSocketFactory: () => new SockJS('http://localhost:8082/ws'),
+    });
+
+    client.onConnect = () => {
+      document.getElementById('status').textContent = 'connected — waiting for incidents';
+      document.getElementById('status').className = 'on';
+      client.subscribe('/topic/incidents/tenant-a', (msg) => {
+        const e = JSON.parse(msg.body);
+        const li = document.createElement('li');
+        if (e.type === 'CREATED') {
+          li.innerHTML = `<b>NEW</b> ${e.title} <span class="mono">${e.source} · ${e.incidentId}</span>`;
+        } else if (e.type === 'STATE_CHANGED') {
+          li.className = 'state';
+          li.innerHTML = `${e.fromState} → ${e.toState} <span class="mono">${e.incidentId}</span>`;
+        } else {
+          li.textContent = `${e.type} — ${e.incidentId}`;
+        }
+        document.getElementById('events').prepend(li);
+      });
+    };
+
+    client.onStompError = (f) => {
+      document.getElementById('status').textContent = 'error: ' + f.headers['message'];
+    };
+
+    client.activate();
+  </script>
+</body>
+</html>
